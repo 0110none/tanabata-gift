@@ -7,21 +7,17 @@
   <meta name="description" content="星をタップして、七夕のメッセージを受け取ってね。" />
   <style>
     :root{
-      --bg:#040814;
-      --fg:#fff;
-      --accent:#ffd86b;
-      --overlay:rgba(0,0,0,.35);  /* 背景图上叠一层暗色，提升可读性 */
+      --bg:#040814; --fg:#fff; --overlay:rgba(0,0,0,.35); /* 背景图上加一层暗色 */
     }
     *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     html,body{ height:100%; margin:0; }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI","PingFang SC","Microsoft YaHei",sans-serif;
-      background: var(--bg);
-      color:var(--fg);
+      background: var(--bg); color:var(--fg);
       display:flex; align-items:center; justify-content:center;
       padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
       -webkit-font-smoothing:antialiased;
-      touch-action: manipulation; /* iOS 点按更灵敏 */
+      touch-action: manipulation;
     }
 
     header{
@@ -38,7 +34,7 @@
       border-radius:20px; overflow:hidden;
       box-shadow:0 12px 40px rgba(0,0,0,.45);
       background:
-        /* ↓ 替换为你的背景图（步骤见下文） */
+        /* ←想自定义背景图，把 ./assets/bg.jpg 换成你的图 */
         linear-gradient(var(--overlay),var(--overlay)),
         url("./star.png") center/cover no-repeat,
         radial-gradient(60% 60% at 70% 30%, rgba(255,255,255,.08), transparent 60%),
@@ -47,30 +43,16 @@
       will-change:transform;
     }
 
-    /* 背景星尘（轻量） */
-    .dust{ position:absolute; inset:0; pointer-events:none; background:
-      radial-gradient(1px 1px at 10% 20%, #fff 50%, transparent 52%),
-      radial-gradient(1px 1px at 30% 80%, #fff 50%, transparent 52%),
-      radial-gradient(1px 1px at 70% 30%, #fff 50%, transparent 52%),
-      radial-gradient(1px 1px at 85% 60%, #fff 50%, transparent 52%),
-      radial-gradient(1px 1px at 50% 50%, #fff 50%, transparent 52%),
-      radial-gradient(1px 1px at 20% 65%, #fff 50%, transparent 52%);
-      opacity:.35; filter:drop-shadow(0 0 3px rgba(255,255,255,.3));
-    }
-
+    /* 星星是纯文本“⭐️”，用按钮承载，便于 iOS 点击 */
     .star{
-      position:absolute;
-      width:36px; height:36px; border:0; border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #fff 0%, #fff 40%, var(--accent) 41%, rgba(255,216,107,.35) 62%, transparent 72%);
-      cursor:pointer; touch-action: manipulation;
-      transition: transform .12s ease, filter .2s ease;
-      animation: twinkle 2.4s infinite ease-in-out;
-      filter: drop-shadow(0 0 6px rgba(255,216,107,.7));
-      transform: translateZ(0); /* iOS GPU 加速 */
+      position:absolute; border:0; background:transparent; color:#fff;
+      font-size:clamp(26px, 7vw, 40px); line-height:1; cursor:pointer;
+      transform:translate(-50%, -50%);  /* 以坐标为中心对齐 */
+      transition:transform .12s ease, filter .2s ease;
+      text-shadow:0 0 10px rgba(255,215,0,.55), 0 0 18px rgba(255,215,0,.35);
     }
-    .star:active{ transform:scale(.9); }
-    @media (hover:hover){ .star:hover{ transform:scale(1.08); } }
-    @keyframes twinkle{ 0%,100%{opacity:.95} 50%{opacity:.55} }
+    .star:active{ transform:translate(-50%,-50%) scale(.92); }
+    @media (hover:hover){ .star:hover{ transform:translate(-50%,-50%) scale(1.06); } }
 
     .msg{
       position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
@@ -81,18 +63,12 @@
       font-size:clamp(14px, 3.6vw, 16px); line-height:1.6;
       box-shadow:0 10px 30px rgba(0,0,0,.45);
     }
-    .msg b{ color:var(--accent); }
 
     .share{
       position:absolute; right:12px; top:12px;
       background: rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.18);
       color:#fff; border-radius:999px; padding:8px 12px; font-size:12px;
-      cursor:pointer; touch-action:manipulation;
-      backdrop-filter: blur(6px);
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .star{ animation:none }
+      cursor:pointer; backdrop-filter: blur(6px);
     }
   </style>
 </head>
@@ -103,13 +79,22 @@
   </header>
 
   <div class="sky" id="sky" aria-label="tanabata sky">
-    <div class="dust" aria-hidden="true"></div>
     <p class="msg" id="msg">星を選ぶと、メッセージが現れるよ。<br><b>Happy Tanabata</b> 🎋</p>
     <button class="share" id="shareBtn" type="button">Share</button>
+
+    <!-- ⭐️ 七颗星：爱心形状（百分比坐标，中心对齐） -->
+    <!-- 坐标说明：left = X%，top = Y%（容器内相对位置） -->
+    <button class="star" type="button" style="left:50%; top:18%;" aria-label="star">⭐️</button> <!-- 顶部心窝 -->
+    <button class="star" type="button" style="left:32%; top:28%;" aria-label="star">⭐️</button> <!-- 左上 -->
+    <button class="star" type="button" style="left:68%; top:28%;" aria-label="star">⭐️</button> <!-- 右上 -->
+    <button class="star" type="button" style="left:24%; top:46%;" aria-label="star">⭐️</button> <!-- 左中 -->
+    <button class="star" type="button" style="left:76%; top:46%;" aria-label="star">⭐️</button> <!-- 右中 -->
+    <button class="star" type="button" style="left:50%; top:60%;" aria-label="star">⭐️</button> <!-- 下中 -->
+    <button class="star" type="button" style="left:50%; top:78%;" aria-label="star">⭐️</button> <!-- 心尖 -->
   </div>
 
   <script>
-    // 祝福语：可自行增删，支持中日双语
+    // 祝福语（可改成你的专属台词，日/中都行）
     const WISHES = [
       "七夕の夜、君の幸せを祈っています。⭐️",
       "いつも笑顔でいてね。😊",
@@ -120,54 +105,23 @@
       "君の存在だけで、世界がやさしくなる。💫",
     ];
 
-    const sky = document.getElementById("sky");
     const msg = document.getElementById("msg");
-
-    // ⭐ 七颗星
-    const STAR_COUNT = 7;
-
-    // 在相对安全的可点区域内随机摆放（避免被消息框挡住）
-    function randomPos(){
-      const left = 8 + Math.random()*84;     // 8% ~ 92%
-      const top  = 10 + Math.random()*64;    // 10% ~ 74%
-      return {left, top};
-    }
-
-    for (let i = 0; i < STAR_COUNT; i++){
-      const s = document.createElement("button");
-      s.className = "star"; s.type = "button"; s.setAttribute("aria-label","star");
-      const {left, top} = randomPos();
-      s.style.left = left + "%";
-      s.style.top  = top  + "%";
-
-      // 尺寸随设备自适应，iPhone 上触控面积更大
-      const base = Math.min(window.innerWidth, 560);
-      const size = Math.max(32, Math.round(base/18 + Math.random()*6));
-      s.style.width = s.style.height = size + "px";
-
-      // 交互
-      s.addEventListener("click", () => {
+    // 给所有星星绑定点击事件：随机显示祝福
+    document.querySelectorAll(".star").forEach((s)=>{
+      s.addEventListener("click", ()=>{
         const text = WISHES[Math.floor(Math.random()*WISHES.length)];
         msg.textContent = text;
       });
+    });
 
-      // 稍微错峰闪烁
-      s.style.animationDelay = (Math.random()*2.4).toFixed(2) + "s";
-      sky.appendChild(s);
-    }
-
-    // 分享按钮（iOS Safari 支持 Web Share API）
-    document.getElementById("shareBtn").addEventListener("click", async () => {
+    // 分享（iOS Safari 支持 Web Share API）
+    document.getElementById("shareBtn").addEventListener("click", async ()=>{
       const shareData = { title:"七夕の願い星", text:"星を選んで、メッセージを受け取ってね🎋", url: location.href };
       try{
         if (navigator.share){ await navigator.share(shareData); }
-        else {
-          await navigator.clipboard.writeText(location.href);
-          alert("Link copied!");
-        }
+        else { await navigator.clipboard.writeText(location.href); alert("Link copied!"); }
       }catch(e){
-        await navigator.clipboard.writeText(location.href);
-        alert("Link copied!");
+        await navigator.clipboard.writeText(location.href); alert("Link copied!");
       }
     });
   </script>
